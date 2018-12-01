@@ -5,6 +5,7 @@ class Usuario extends Controller {
     constructor(){
         super();
         this.usuario = require('../Model/Usuario')
+        this.log = require('../Model/Logs')
     }
 
     Auth(req, res, next){
@@ -43,6 +44,9 @@ class Usuario extends Controller {
        let {usuario, senha} = req.body
        senha = this.encrypt(senha);
         this.usuario.findAndCountAll({where: {usuario, senha}}).then(data => {
+            if(data.count > 0){
+                this.log.create({usuario}).then(() => console.log(`Usuário ${usuario} logou no sistema`)).catch(() => console.log('Erro log login'))
+            }
             this.sendSuccessResponse(req, res, next, data)
         }).catch(err => {
             this.sendErrorResponse(req, res, next, err)
